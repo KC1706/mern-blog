@@ -32,12 +32,21 @@ export const updateUser = async (req, res, next) => {
       return next(
         errorHandler(400, 'Username can only contain letters and numbers')
       );
+              // Regex (/^[a-zA-Z0-9]+$/)
+          // ^: Matches the start of the string.
+          // [a-zA-Z0-9]: A character set that allows:
+          // a-z: Lowercase English letters.
+          // A-Z: Uppercase English letters.
+          // 0-9: Digits.
+          // +: Ensures one or more characters in the string must match the allowed set.
+          // $: Matches the end of the string.
     }
   }
   try {
     const updatedUser = await User.findByIdAndUpdate(
       req.params.userId,
       {
+        // The $set operator ensures that only the specified fields in the object are updated in the database
         $set: {
           username: req.body.username,
           email: req.body.email,
@@ -45,6 +54,7 @@ export const updateUser = async (req, res, next) => {
           password: req.body.password,
         },
       },
+      // Ensures that the method returns the updated document, not the original.
       { new: true }
     );
     const { password, ...rest } = updatedUser._doc;
@@ -87,8 +97,13 @@ export const getUsers = async (req, res, next) => {
     const sortDirection = req.query.sort === 'asc' ? 1 : -1;
 
     const users = await User.find()
+      // createdAt : A typical field in user documents that stores the timestamp when the user was created.
       .sort({ createdAt: sortDirection })
+      // Useful for implementing pagination:
+      // If startIndex = 10, the first 10 documents will be skipped.
+      // The response will start from the 11th document.
       .skip(startIndex)
+      // if limit = 5, only 5 user documents will be returned.
       .limit(limit);
 
     const usersWithoutPassword = users.map((user) => {
