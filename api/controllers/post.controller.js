@@ -12,8 +12,11 @@ export const create = async (req, res, next) => {
     .split(' ')
     .join('-')
     .toLowerCase()
+    // The replace() method scans the string for any character not in the set [a-zA-Z0-9-] and removes it by replacing it with an empty string.
     .replace(/[^a-zA-Z0-9-]/g, '');
+  
   const newPost = new Post({
+    // ... spread operator
     ...req.body,
     slug,
     userId: req.user.id,
@@ -31,7 +34,23 @@ export const getposts = async (req, res, next) => {
     const startIndex = parseInt(req.query.startIndex) || 0;
     const limit = parseInt(req.query.limit) || 9;
     const sortDirection = req.query.order === 'asc' ? 1 : -1;
-    const posts = await Post.find({
+    
+
+
+      // What’s Happening with the Spread Operator (...)
+      // Conditional Object Inclusion:
+      
+      // For each query parameter (like userId, category, etc.), we check if the parameter exists in req.query:
+      // If the parameter exists (i.e., req.query.userId), we include it in the query object using { userId: req.query.userId }.
+      // If it doesn't exist, it won't be added to the query object.
+      // Combining Multiple Conditions:
+      
+      // The spread operator (...) merges all the conditional objects into a single query object. This ensures that we build the query dynamically, including only the relevant filters provided by the client.
+      // Flexible Query Building:
+      
+      // This approach allows the query to adapt to different combinations of query parameters. It keeps the code clean and concise, without manually checking each parameter and modifying the query object.
+       // The spread operator (...) is used to conditionally include query parameters in the MongoDB query object.
+      const posts = await Post.find({
       ...(req.query.userId && { userId: req.query.userId }),
       ...(req.query.category && { category: req.query.category }),
       ...(req.query.slug && { slug: req.query.slug }),
@@ -98,7 +117,12 @@ export const updatepost = async (req, res, next) => {
           image: req.body.image,
         },
       },
-      { new: true }
+
+      
+      // Purpose: This option tells Mongoose to return the updated document after the update operation is complete.
+      // Default behavior: By default, Mongoose would return the original document before the update.
+      // new: true ensures that the response will contain the updated post (with the new values), not the old one
+    { new: true }
     );
     res.status(200).json(updatedPost);
   } catch (error) {
