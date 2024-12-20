@@ -8,7 +8,11 @@ export const signup = async (req, res, next) => {
 
   if (
     !username ||
-    !email ||
+    !email ||        
+    // !username:
+// Catches cases where the field is missing (undefined or null).
+// username === '':
+// Catches cases where the field exists but is explicitly an empty string.
     !password ||
     username === '' ||
     email === '' ||
